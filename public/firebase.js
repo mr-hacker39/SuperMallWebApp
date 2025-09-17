@@ -5,13 +5,12 @@ import { getFirestore } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-
 
 
 const firebaseConfig = {
-  apiKey: "AIzaSyAVQGPEqsiESRrUvQ9K5cS9tW6PjWRsua4",
-  authDomain: "supermallwebapp-872bc.firebaseapp.com",
-  projectId: "supermallwebapp-872bc",
-  storageBucket: "supermallwebapp-872bc.firebasestorage.app",
-  messagingSenderId: "440078203020",
-  appId: "1:440078203020:web:2b982f2863ce99451f63a9",
-  measurementId: "G-2LQZSBB2CB"
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_PROJECT.appspot.com",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID"
 };
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
@@ -19,3 +18,4 @@ const auth = getAuth(app);
 const db = getFirestore(app);
 
 export { app, auth, db };
+
