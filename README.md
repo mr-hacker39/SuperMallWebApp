@@ -23,4 +23,13 @@ SuperMall is a web application that allows merchants to advertise products and m
 - Firebase Firestore
 - Responsive & modern UI/UX
 
-## Folder Structure
+## Add your firebase API keys in firebase.js
+replace this -----
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_PROJECT.appspot.com",
+  messagingSenderId: "YOUR_SENDER_ID",
+  appId: "YOUR_APP_ID"
+};
