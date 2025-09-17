@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>SuperMall - Home</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>SuperMall</h1>
+    <nav>
+      <a href="index.html">Home</a>
+      <a href="signup.html">Signup</a>
+      <a href="login.html">Login</a>
+      <button class="logout-btn" id="logoutBtn">Logout</button>
+    </nav>
+  </header>
+
+  <section class="hero">
+    <h2>Welcome to SuperMall</h2>
+    <p>Your one-stop destination for amazing deals and products from all over the world. Explore and shop with confidence!</p>
+    <button class="cta-btn">Explore Offers</button>
+  </section>
+
+  <section class="offers-section">
+    <h2>Latest Offers</h2>
+    <div id="offersContainer" class="offers-grid"></div>
+  </section>
+
+  <section class="categories-section">
+    <h2>Shop by Categories</h2>
+    <div class="categories-grid">
+      <div class="category-card">Electronics</div>
+      <div class="category-card">Fashion</div>
+      <div class="category-card">Home & Kitchen</div>
+      <div class="category-card">Books</div>
+      <div class="category-card">Toys</div>
+      <div class="category-card">Sports</div>
+    </div>
+  </section>
+
+  <footer>
+    <p>&copy; 2025 SuperMall. All rights reserved.</p>
+  </footer>
+
+  <script type="module">
+    import { auth, db } from "./firebase.js";
+    import { signOut } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+    import { collection, query, orderBy, getDocs } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+
+    const logoutBtn = document.getElementById("logoutBtn");
+    logoutBtn.addEventListener("click", () => signOut(auth).then(() => window.location.href="login.html"));
+
+    const offersContainer = document.getElementById("offersContainer");
+    async function loadOffers() {
+      offersContainer.innerHTML = "";
+      const q = query(collection(db, "offers"), orderBy("createdAt","desc"));
+      const snapshot = await getDocs(q);
+      snapshot.forEach(docSnap => {
+        const offer = docSnap.data();
+        offersContainer.innerHTML += `
+          <div class="offer-card">
+            <img src="${offer.imageUrl}" alt="${offer.title}" />
+            <h3>${offer.title}</h3>
+            <p>${offer.description}</p>
+            <p><strong>₹${offer.price}</strong></p>
+            <button class="buy-btn">Buy Now</button>
+          </div>
+        `;
+      });
+    }
+    loadOffers();
+  </script>
+</body>
+</html>

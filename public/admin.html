@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>SuperMall - Admin Dashboard</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header>
+    <h1>Admin Dashboard</h1>
+    <nav>
+      <a href="index.html">Home</a>
+      <button class="logout-btn" id="adminLogoutBtn">Logout</button>
+    </nav>
+  </header>
+
+  <section class="admin-hero">
+    <h2>Welcome, Admin!</h2>
+    <p>Manage products, offers, and users effectively from this dashboard.</p>
+  </section>
+
+  <section class="offer-management">
+    <h2>Add New Offer</h2>
+    <form id="offerForm">
+      <input type="text" id="offerTitle" placeholder="Title" required>
+      <textarea id="offerDescription" placeholder="Description" required></textarea>
+      <input type="number" id="offerPrice" placeholder="Price" required>
+      <input type="url" id="offerImage" placeholder="Image URL" required>
+      <button type="submit" class="add-btn">Add Offer</button>
+    </form>
+
+    <h2>Manage Offers</h2>
+    <div id="adminOffersContainer" class="offers-grid"></div>
+  </section>
+
+  <section class="user-management">
+    <h2>Manage Users</h2>
+    <div id="usersContainer"></div>
+  </section>
+
+  <section class="analytics-section">
+    <h2>Analytics</h2>
+    <p>Coming soon: Track offers, users, and revenue statistics here.</p>
+  </section>
+
+  <footer>
+    <p>&copy; 2025 SuperMall. Admin Panel</p>
+  </footer>
+
+  <script type="module">
+    import { auth, db } from "./firebase.js";
+    import { signOut } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-auth.js";
+    import { collection, addDoc, query, orderBy, getDocs, deleteDoc, doc, updateDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore.js";
+
+    // Logout
+    document.getElementById("adminLogoutBtn").addEventListener("click", () => {
+      signOut(auth).then(() => window.location.href="login.html");
+    });
+
+    // Add offer
+    const offerForm = document.getElementById("offerForm");
+    const adminOffersContainer = document.getElementById("adminOffersContainer");
+    offerForm.addEventListener("submit", async e => {
+      e.preventDefault();
+      const title = document.getElementById("offerTitle").value;
+      const description = document.getElementById("offerDescription").value;
+      const price = parseFloat(document.getElementById("offerPrice").value);
+      const imageUrl = document.getElementById("offerImage").value;
+      await addDoc(collection(db, "offers"), { title, description, price, imageUrl, createdAt: serverTimestamp() });
+      alert("Offer added!");
+      offerForm.reset();
+      loadAdminOffers();
+    });
+
+    // Load & manage offers
+    async function loadAdminOffers() {
+      adminOffersContainer.innerHTML = "";
+      const q = query(collection(db, "offers"), orderBy("createdAt","desc"));
+      const snapshot = await getDocs(q);
+      snapshot.forEach(docSnap => {
+        const offer = docSnap.data();
+        const offerId = docSnap.id;
+        const offerCard = document.createElement("div");
+        offerCard.className = "offer-card";
+        offerCard.innerHTML = `
+          <img src="${offer.imageUrl}" alt="${offer.title}" />
+          <h3>${offer.title}</h3>
+          <p>${offer.description}</p>
+          <p><strong>₹${offer.price}</strong></p>
+          <button class="edit-btn">Edit</button>
+          <button class="delete-btn">Delete</button>
+        `;
+        offerCard.querySelector(".delete-btn").addEventListener("click", async () => {
+          if(confirm("Delete this offer?")) { await deleteDoc(doc(db,"offers",offerId)); loadAdminOffers(); }
+        });
+        offerCard.querySelector(".edit-btn").addEventListener("click", async () => {
+          const newTitle = prompt("New title", offer.title);
+          const newDesc = prompt("New description", offer.description);
+          const newPrice = parseFloat(prompt("New price", offer.price));
+          const newImage = prompt("New image URL", offer.imageUrl);
+          if(newTitle && newDesc && !isNaN(newPrice) && newImage){
+            await updateDoc(doc(db,"offers",offerId), {title:newTitle,description:newDesc,price:newPrice,imageUrl:newImage});
+            loadAdminOffers();
+          }
+        });
+        adminOffersContainer.appendChild(offerCard);
+      });
+    }
+
+    loadAdminOffers();
+  </script>
+</body>
+</html>
